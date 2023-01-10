@@ -35,6 +35,8 @@ public class Compositor : MonoBehaviour
         //Debug.Log("Compose");
         CreateServices();
         ResoleDepencencies();
+        InitializeServices();
+        
         return true;
     }
 
@@ -102,6 +104,32 @@ public class Compositor : MonoBehaviour
                 }
             }
             else throw new MissingMemberException("Missing Service");
+        }
+    }
+
+    void InitializeServices()
+    {
+        var services = new HashSet<IService>(servicesDictionnary.Values);
+
+        foreach (var service in services)
+        {
+            Type serviceType = service.GetType();
+            foreach (var methodInfos in serviceType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                InitializedOnCompose[] initMethods =  (InitializedOnCompose[])Attribute.GetCustomAttributes(methodInfos, typeof(InitializedOnCompose));
+
+                if (initMethods.Length == 0) continue;
+                foreach (var _ in initMethods)
+                {
+                    if (methodInfos.GetParameters().Length > 0)
+                        throw new TargetParameterCountException("InitializeOnCompose Method can't have param ");
+                    if (methodInfos.ReturnType == typeof(void))
+                    {
+                        methodInfos.Invoke(service, null);
+                    }
+                    else throw new TypeAccessException("InitializeOnCompose Method must return void type");
+                }
+            }
         }
     }
 }
