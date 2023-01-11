@@ -8,8 +8,10 @@ namespace Services
     public class LevelService : Service, ILevelService
     {
         private MapData map;
-        private Vector3 spawnPosition;
-        private Vector3 leavePosition;
+        private Transform spawnPoint;
+        private Transform leavePoint;
+        public Transform entryPoint;
+        public Transform exitPoint;
         private Dictionary<Enums.Interaction, List<InterestPoint>> interactionInterestPoints;
 
         protected override void Initialize()
@@ -20,10 +22,13 @@ namespace Services
         void GenerateMap(GameObject obj)
         {
             var mapGO = Object.Instantiate(obj);
+            gameObjectDependency.Add(mapGO);
             mapGO.transform.position = Vector3.zero;
             map = mapGO.GetComponent<MapData>();
-            spawnPosition = map.spawnPoint.position;
-            leavePosition = map.leavePoint.position;
+            spawnPoint = map.spawnPoint;
+            leavePoint = map.leavePoint;
+            entryPoint = map.entryPoint;
+            exitPoint = map.exitPoint;
             foreach (var interestPoint in map.interestPoints)
             {
                 foreach (var interaction in interestPoint.interactions)
@@ -37,12 +42,12 @@ namespace Services
 
         public Vector3 GetSpawnPosition()
         {
-            return spawnPosition;
+            return spawnPoint.position;
         }
 
         public Vector3 GetLeavePosition()
         {
-            return leavePosition;
+            return leavePoint.position;
         }
     }
 }
