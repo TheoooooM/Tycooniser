@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace Services
 {
-    public class GameService : IGameService
+    public class GameService : Service, IGameService
     {
         [DependeOnService] 
         private ITimeService timeService;
 
-        public int E = 3;
-
         [InitializedOnCompose]
-        void Initialize()
+        protected override void Initialize()
         {
             Debug.Log("EE : " + timeService);
         }
+
+        
     }
 }
